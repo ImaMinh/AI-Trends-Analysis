@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 
 df = pd.read_csv("./ai_job_dataset.csv")
@@ -86,5 +87,28 @@ checking_for_unique_job_titles(df)
 checking_for_duplicates_job_ids(df)
 
 # --- Checking for Outliers ---
+
+print(">>> General Numeric Stats: \n", df.describe(), "\n")
+
+plt.subplot(2, 2, 1)
+counts, bins, _ = plt.hist(df['salary_usd'], 50, color="purple", edgecolor = 'black', alpha = 0.1, label='salary distribution')
+plt.xlabel('salary', weight = 'bold')
+plt.ylabel('occurences', weight='bold')
+plt.legend()
+plt.title('salary distribution')
+
+bin_midpoints = []
+for i in range(len(bins) - 1):
+    midpoint = (bins[i] + bins[i + 1]) / 2
+    bin_midpoints.append(midpoint)
+plt.plot(bin_midpoints, counts, marker='o', linestyle = '-', mfc='blue', color = 'black') 
+
+plt.subplot(2, 2, 2)
+plt.boxplot(df["salary_usd"])
+
+plt.show()
+
+
+
 
 
