@@ -1,5 +1,6 @@
 import pandas as pd
 import numpy as np
+import seaborn as sns
 import matplotlib.pyplot as plt
 
 df = pd.read_csv("./ai_job_dataset.csv")
@@ -90,25 +91,77 @@ checking_for_duplicates_job_ids(df)
 
 print(">>> General Numeric Stats: \n", df.describe(), "\n")
 
-plt.subplot(2, 2, 1)
-counts, bins, _ = plt.hist(df['salary_usd'], 50, color="purple", edgecolor = 'black', alpha = 0.1, label='salary distribution')
-plt.xlabel('salary', weight = 'bold')
-plt.ylabel('occurences', weight='bold')
-plt.legend()
-plt.title('salary distribution')
-
-bin_midpoints = []
-for i in range(len(bins) - 1):
-    midpoint = (bins[i] + bins[i + 1]) / 2
-    bin_midpoints.append(midpoint)
-plt.plot(bin_midpoints, counts, marker='o', linestyle = '-', mfc='blue', color = 'black') 
-
-plt.subplot(2, 2, 2)
-plt.boxplot(df["salary_usd"])
-
-plt.show()
+salary = df['salary_usd']
 
 
+def display_salary_histogram(salary: pd.Series) -> None:
+    counts, bins, _ = plt.hist(salary, 50, color="purple", edgecolor = 'black', alpha = 0.1, label='salary distribution')
 
+    plt.xlabel('salary', weight = 'bold')
+    plt.ylabel('occurences', weight='bold')
+    plt.legend()
+    plt.title('salary distribution')
 
+    bin_midpoints = []
+    for i in range(len(bins) - 1):
+        midpoint = (bins[i] + bins[i + 1]) / 2
+        bin_midpoints.append(midpoint)
+    plt.plot(bin_midpoints, counts, marker='o', linestyle = '-', mfc='blue', color = 'black', ms=5) 
+    
+    skew = salary.skew()
+    kurtosis = salary.kurtosis()
+    
+    print("\n Skewness of Distribution: ", skew, "\n",
+          "Kurtosis of Distribution: ", kurtosis, "\n\n")
+    
+    plt.show()
+    
+def display_salary_boxplot(salary: pd.Series) -> None:
+    plt.boxplot(salary, vert=False)
+    plt.xlabel('Salary USD', weight = 'bold')
+    plt.show()
 
+def plot_all(salary: pd.Series) -> None:
+    # Create a figure with 2x1 subplots
+    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(12, 10))
+
+    # Histogram on the first subplot
+    counts, bins, _ = axes[0].hist(
+        salary, 50, color="purple", edgecolor="black", alpha=0.1, label="salary distribution"
+    )
+    axes[0].set_xlabel("Salary", weight="bold")
+    axes[0].set_ylabel("Occurrences", weight="bold")
+    axes[0].legend()
+    axes[0].set_title("Salary Distribution")
+
+    # Plot line connecting bin midpoints
+    bin_midpoints = [(bins[i] + bins[i + 1]) / 2 for i in range(len(bins) - 1)]
+    axes[0].plot(
+        bin_midpoints,
+        counts,
+        marker="o",
+        linestyle="-",
+        mfc="blue",
+        color="black",
+        ms=5,
+    )
+
+    # Calculate and print skewness and kurtosis
+    skew = salary.skew()
+    kurtosis = salary.kurtosis()
+    print(
+        "Skewness of Distribution: ", skew, "\n",
+        "Kurtosis of Distribution: ", kurtosis, "\n\n"
+    )
+
+    # Boxplot on the second subplot
+    axes[1].boxplot(salary, vert=False)
+    axes[1].set_xlabel("Salary USD", weight="bold")
+
+    # Adjust layout to prevent overlap
+    plt.tight_layout()
+    
+    # Display the plots
+    plt.show()
+    
+plot_all(salary)
