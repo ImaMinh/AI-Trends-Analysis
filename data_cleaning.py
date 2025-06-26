@@ -48,8 +48,6 @@ check_for_missing_values(df)
 # * Cast each column to its intended type: int, float, category, datetime
 # * Fail fast (raise an error), if a value cannot be coerced
 
-
-
 #3. --- Check for Duplicates ---
 
 # check for general duplicated rows:
@@ -129,7 +127,7 @@ def plot_all(salary: pd.Series) -> None:
         ">>> Kurtosis of Distribution: ", kurtosis
     )
     
-    if(kurtosis > 3.0):
+    if(kurtosis > 3.0): # type: ignore
         print('--> Leptokurtic')
     elif (kurtosis == 3.0):
         print('--> Mesokurtic')
@@ -165,20 +163,21 @@ def plot_all(salary: pd.Series) -> None:
     plt.show()
 
 def flag_zScore_outliers(salary: pd.Series, upper_fence) -> None:
+    print(">>> Examining Potential Outliers w/ Value > Upper IQR fence\n\n")
     potential_outlying_salary = df[df["salary_usd"] > upper_fence].reset_index(drop=True)
-    print(potential_outlying_salary)
+    print(">>> Potential Outlying Salary: ",potential_outlying_salary, "\n\n")
     
     plt.hist(potential_outlying_salary['salary_usd'], ec='black', bins=10, label='outlying salary distribution')
     plt.show()
     
-    print(potential_outlying_salary['experience_level'].unique(), potential_outlying_salary['job_title'].unique())
+    print(">>> Examine Experience Level: ",potential_outlying_salary['experience_level'].unique(), "\n\n",
+          ">>> Examine Job Roles: \n", potential_outlying_salary['job_title'].unique())
     
     
 Q1 = np.percentile(salary, 25)
 Q3 = np.percentile(salary, 75)
 
 IQR = Q3 - Q1
-    
 lower_fence = Q1 - 1.5*IQR
 upper_fence = Q3 + 1.5*IQR
     
@@ -186,4 +185,18 @@ plot_all(salary)
 
 flag_zScore_outliers(salary, upper_fence)
 
-    
+# --- Dropping redundant columns ---
+to_drop = [
+  'job_id',                # just an identifier
+  'salary_currency',       # already have salary_usd
+  'employee_residence',    # not used in any of the 4 analyses
+  'posting_date',          # only needed if we do time-series or “time_to_deadline”
+  'application_deadline',  # ditto
+  'job_description_length',# unrelated
+  'benefits_score',        # not in our objectives
+  'company_name',          # too granular—you're grouping by location/size
+  'education_required',    # outside our scope
+  'industry'               # unrelated
+]
+df_clean = df.drop(columns=to_drop)
+df_clean.to_csv('ai_job_dataset_cleaned.csv', index=False, sep=',')
