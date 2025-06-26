@@ -93,33 +93,8 @@ print(">>> General Numeric Stats: \n", df.describe(), "\n")
 
 salary = df['salary_usd']
 
-
-def display_salary_histogram(salary: pd.Series) -> None:
-    counts, bins, _ = plt.hist(salary, 50, color="purple", edgecolor = 'black', alpha = 0.1, label='salary distribution')
-
-    plt.xlabel('salary', weight = 'bold')
-    plt.ylabel('occurences', weight='bold')
-    plt.legend()
-    plt.title('salary distribution')
-
-    bin_midpoints = []
-    for i in range(len(bins) - 1):
-        midpoint = (bins[i] + bins[i + 1]) / 2
-        bin_midpoints.append(midpoint)
-    plt.plot(bin_midpoints, counts, marker='o', linestyle = '-', mfc='blue', color = 'black', ms=5) 
-    
-    skew = salary.skew()
-    kurtosis = salary.kurtosis()
-    
-    print("\n Skewness of Distribution: ", skew, "\n",
-          "Kurtosis of Distribution: ", kurtosis, "\n\n")
-    
-    plt.show()
-    
-def display_salary_boxplot(salary: pd.Series) -> None:
-    plt.boxplot(salary, vert=False)
-    plt.xlabel('Salary USD', weight = 'bold')
-    plt.show()
+# Univariate Salary Analysis
+print(">>> Standard salary deviation: ", salary.std())
 
 def plot_all(salary: pd.Series) -> None:
     # Create a figure with 2x1 subplots
@@ -150,18 +125,65 @@ def plot_all(salary: pd.Series) -> None:
     skew = salary.skew()
     kurtosis = salary.kurtosis()
     print(
-        "Skewness of Distribution: ", skew, "\n",
-        "Kurtosis of Distribution: ", kurtosis, "\n\n"
+        ">>> Skewness of Distribution: ", skew, "\n", 
+        ">>> Kurtosis of Distribution: ", kurtosis
     )
+    
+    if(kurtosis > 3.0):
+        print('--> Leptokurtic')
+    elif (kurtosis == 3.0):
+        print('--> Mesokurtic')
+    else:
+        print('--> Platykurtic')
+    
 
     # Boxplot on the second subplot
     axes[1].boxplot(salary, vert=False)
     axes[1].set_xlabel("Salary USD", weight="bold")
-
+    
+    Q1 = np.percentile(salary, 25)
+    Q3 = np.percentile(salary, 75)
+    
+    IQR = Q3 - Q1
+    
+    print(f"Q1: {Q1}")
+    print(f"Q3: {Q3}")
+    print(f"IQR: {IQR}")
+    
+    lower_fence = Q1 - 1.5*IQR
+    upper_fence = Q3 + 1.5*IQR
+    
+    axes[1].plot(lower_fence, 1, marker = 'o', mfc = 'red', ms = 10)
+    axes[1].plot(upper_fence, 1, marker = 'o', mfc = 'blue', ms = 10)
+    
+    axes[1].plot(Q1, 1, ms = 30, mfc = 'yellow')
+    
     # Adjust layout to prevent overlap
     plt.tight_layout()
     
     # Display the plots
     plt.show()
+
+def flag_zScore_outliers(salary: pd.Series, upper_fence) -> None:
+    potential_outlying_salary = df[df["salary_usd"] > upper_fence].reset_index(drop=True)
+    print(potential_outlying_salary)
+    
+    plt.hist(potential_outlying_salary['salary_usd'], ec='black', bins=10, label='outlying salary distribution')
+    plt.show()
+    
+    print(potential_outlying_salary['experience_level'].unique(), potential_outlying_salary['job_title'].unique())
+    
+    
+Q1 = np.percentile(salary, 25)
+Q3 = np.percentile(salary, 75)
+
+IQR = Q3 - Q1
+    
+lower_fence = Q1 - 1.5*IQR
+upper_fence = Q3 + 1.5*IQR
     
 plot_all(salary)
+
+flag_zScore_outliers(salary, upper_fence)
+
+    
