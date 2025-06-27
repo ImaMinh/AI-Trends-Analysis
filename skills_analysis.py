@@ -95,7 +95,8 @@ top = skills_df  # or skills_df.iloc[:10] for just the top 10
 plt.figure(figsize=(8,6))
 plt.barh(top['skill'], top['count'], ec='black', color='purple', alpha = 0.5)
 plt.gca().invert_yaxis()   # largest at top
-plt.xlabel('Number of Job Postings')
+plt.xlabel('Number of Job Postings', weight = 'bold')
+plt.yticks(weight = 'bold')
 plt.title('Required Skills — Ranked by Frequency')
 plt.tight_layout()
 plt.show()
