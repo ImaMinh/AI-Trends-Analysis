@@ -78,7 +78,7 @@ for i, lvl in enumerate(levels):
     
     # place them all at x = i (or add a tiny jitter so points don't
     # perfectly overlap)
-    xs = np.random.normal(i, 0.05, size=len(ys))
+    xs = np.random.normal(i, scale = 0.05, size=len(ys)) # Normal x-distribution with mean (center point of bell curve dist) = i and stdev = 0.05. Size = len of ys
     
     ax.scatter(xs, list(ys), alpha=0.4, s=5)
 
