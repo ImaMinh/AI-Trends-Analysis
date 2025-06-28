@@ -158,7 +158,7 @@ def plot_box(salary: pd.Series)->None:
     ax.boxplot(salary, vert=False)
     ax.set_xlabel("Salary Distribution (USD)", weight="bold")
     ax.set_xticks([Q1, Q2, Q3])
-    ax.set_xticklabels([f'Q{index}: {m} USD' for index, m in enumerate([Q1, Q2, Q3])], rotation=45, ha='right', weight='bold')
+    ax.set_xticklabels([f'Q{index + 1}: {m} USD' for index, m in enumerate([Q1, Q2, Q3])], rotation=45, ha='right', weight='bold')
     ax.set_yticks([])
     
     print(f"Q1: {Q1}")
