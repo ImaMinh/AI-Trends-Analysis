@@ -39,7 +39,7 @@ x = np.arange(len(levels))
 width = 0.35  # width of the bars
 
 # Create the bar chart
-fig, ax = plt.subplots()
+fig, ax = plt.subplots()  # if no parameter -> subplot return axes of (1, 1) meaning 1 row and 1 column 
 ax.bar(x - width/2, means, width, label='Mean')
 ax.bar(x + width/2, medians, width, label='Median')
 
