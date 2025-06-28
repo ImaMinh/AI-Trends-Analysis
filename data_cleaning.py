@@ -94,22 +94,23 @@ salary = df['salary_usd']
 # Univariate Salary Analysis
 print(">>> Standard salary deviation: ", salary.std())
 
-def plot_all(salary: pd.Series) -> None:
-    # Create a figure with 2x1 subplots
-    fig, axes = plt.subplots(nrows=2, ncols=1, figsize=(12, 10))
+def plot_hist(salary: pd.Series) -> None:
+    #plot.figure()  --> bỏ đi tại vì nó tạo thêm một plot mới. Một cái này và cái figure khác khi mình gọi plt.subplots bên dưới -> 2 figures
+    fig, axes = plt.subplots(figsize=(12,8))
 
     # Histogram on the first subplot
-    counts, bins, _ = axes[0].hist(
-        salary, 50, color="purple", edgecolor="black", alpha=0.1, label="salary distribution"
+    counts, bins, _ = axes.hist(
+        salary, 100, color="purple", edgecolor="black", alpha=0.1, label="salary distribution"
     )
-    axes[0].set_xlabel("Salary", weight="bold")
-    axes[0].set_ylabel("Occurrences", weight="bold")
-    axes[0].legend()
-    axes[0].set_title("Salary Distribution")
+    
+    axes.set_xlabel("Salary", weight="bold")
+    axes.set_ylabel("Occurrences", weight="bold")
+    axes.legend()
+    axes.set_title("Salary Distribution", weight="bold")
 
     # Plot line connecting bin midpoints
     bin_midpoints = [(bins[i] + bins[i + 1]) / 2 for i in range(len(bins) - 1)]
-    axes[0].plot(
+    axes.plot(
         bin_midpoints,
         counts,
         marker="o",
@@ -118,6 +119,14 @@ def plot_all(salary: pd.Series) -> None:
         color="black",
         ms=5,
     )
+    
+    axes.set_xticks(bin_midpoints[::2])
+    axes.set_xticklabels(
+        [f"{m}" for m in bin_midpoints[::2]],  # or just `bin_midpoints`
+        rotation=45,
+        ha="right",# align right so they don’t overlap
+    )
+    axes.tick_params(axis = 'x', labelsize=8)
 
     # Calculate and print skewness and kurtosis
     skew = salary.skew()
@@ -133,42 +142,52 @@ def plot_all(salary: pd.Series) -> None:
         print('--> Mesokurtic')
     else:
         print('--> Platykurtic')
-    
 
-    # Boxplot on the second subplot
-    axes[1].boxplot(salary, vert=False)
-    axes[1].set_xlabel("Salary USD", weight="bold")
+    # Adjust layout to prevent overlap
+    plt.tight_layout()
     
+def plot_box(salary: pd.Series)->None:
     Q1 = np.percentile(salary, 25)
+    Q2 = np.percentile(salary, 50)
     Q3 = np.percentile(salary, 75)
-    
     IQR = Q3 - Q1
+    
+    # Boxplot
+    fig, ax = plt.subplots()
+    fig.set_figheight(5)
+    ax.boxplot(salary, vert=False)
+    ax.set_xlabel("Salary Distribution (USD)", weight="bold")
+    ax.set_xticks([Q1, Q2, Q3])
+    ax.set_xticklabels([f'Q{index}: {m} USD' for index, m in enumerate([Q1, Q2, Q3])], rotation=45, ha='right', weight='bold')
+    ax.set_yticks([])
     
     print(f"Q1: {Q1}")
     print(f"Q3: {Q3}")
     print(f"IQR: {IQR}")
-    
+     
+     
+    # Plotting upper and lower Tukey Fence
     lower_fence = Q1 - 1.5*IQR
     upper_fence = Q3 + 1.5*IQR
     
-    axes[1].plot(lower_fence, 1, marker = 'o', mfc = 'red', ms = 10)
-    axes[1].plot(upper_fence, 1, marker = 'o', mfc = 'blue', ms = 10)
+    ax.plot(lower_fence, 1, marker = 'x', mfc = 'red', ms = 10, mew=4, mec='red')
+    ax.text(float(lower_fence), 1.03, 'lower tukey fence', weight='bold')
+    ax.plot(upper_fence, 1, marker = 'x', mfc = 'blue', ms = 10, mew=4, mec='blue')
+    ax.text(float(upper_fence), 1.03, 'upper tukey fence', weight='bold')
     
-    axes[1].plot(Q1, 1, ms = 30, mfc = 'yellow')
-    
-    # Adjust layout to prevent overlap
+    plt.title('Box Plot of Salary Distribution', weight='bold')
+
+    ax.plot(Q1, 1, ms = 30, mfc = 'yellow')
     plt.tight_layout()
     
-    # Display the plots
-    plt.show()
-
 def flag_zScore_outliers(salary: pd.Series, upper_fence) -> None:
     print(">>> Examining Potential Outliers w/ Value > Upper IQR fence\n\n")
     potential_outlying_salary = df[df["salary_usd"] > upper_fence].reset_index(drop=True)
     print(">>> Potential Outlying Salary: ",potential_outlying_salary, "\n\n")
     
+    plt.figure()
+    plt.title("Potential Outlying Salary Distribution", weight='bold')
     plt.hist(potential_outlying_salary['salary_usd'], ec='black', bins=10, label='outlying salary distribution')
-    plt.show()
     
     print(">>> Examine Experience Level: ",potential_outlying_salary['experience_level'].unique(), "\n\n",
           ">>> Examine Job Roles: \n", potential_outlying_salary['job_title'].unique())
@@ -181,9 +200,11 @@ IQR = Q3 - Q1
 lower_fence = Q1 - 1.5*IQR
 upper_fence = Q3 + 1.5*IQR
     
-plot_all(salary)
-
+plot_hist(salary)
+plot_box(salary)
 flag_zScore_outliers(salary, upper_fence)
+
+plt.show()
 
 # --- Dropping redundant columns ---
 to_drop = [
