@@ -38,7 +38,7 @@ medians = aggregate_stats.loc['median']
 x = np.arange(len(levels))
 width = 0.35  # width of the bars
 
-# Create the bar chart
+# --> Create the bar chart
 fig, ax = plt.subplots()  # if no parameter -> subplot return axes of (1, 1) meaning 1 row and 1 column 
 ax.bar(x - width/2, means, width, label='Mean')
 ax.bar(x + width/2, medians, width, label='Median')
@@ -69,7 +69,7 @@ for key in keys:
 experience_level_salaries = {experience_level: pd.Series(salaries) for experience_level, salaries in experience_level_salaries.items()}
 experience_level_salaries = pd.DataFrame(experience_level_salaries)
 
-fig, ax = plt.subplots(figsize=(8,6))
+fig, ax = plt.subplots()
 
 levels = experience_level_salaries.columns
 for i, lvl in enumerate(levels):
@@ -80,7 +80,7 @@ for i, lvl in enumerate(levels):
     # perfectly overlap)
     xs = np.random.normal(i, 0.05, size=len(ys))
     
-    ax.scatter(xs, list(ys), alpha=0.4, s=10)
+    ax.scatter(xs, list(ys), alpha=0.4, s=5)
 
 # tidy up the x-axis
 ax.set_xticks(range(len(levels)))
