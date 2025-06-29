@@ -9,10 +9,10 @@ print(df.head)
 print(df.tail)
 print(df.sample(10))
 
-print(df.isna().sum())
-
 salary = df['salary_usd']
 years_experience = df['years_experience']
+
+print(years_experience.isna().sum())
 
 plt.scatter(salary, years_experience, alpha = 0.2, color='purple')
 plt.grid(True)
