@@ -97,7 +97,7 @@ plt.barh(top['skill'], top['count'], ec='black', color='purple', alpha = 0.5)
 plt.gca().invert_yaxis()   # largest at top
 plt.xlabel('Number of Job Postings', weight = 'bold')
 plt.yticks(weight = 'bold')
-plt.title('Required Skills — Ranked by Frequency')
+plt.title('Required Skills - Ranked by Frequency', weight = 'bold')
 plt.tight_layout()
 plt.show()
 

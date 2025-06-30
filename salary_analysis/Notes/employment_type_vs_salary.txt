@@ -1,0 +1,75 @@
+Vì cái lượng lương giữa mỗi loại employment type nhìn na ná nhau.
+Nên có thể thấy rằng sự ảnh hưởng của loại employment với tiền lương mỗi nhóm là không hề lớn.
+Tuy nhiên, tôi muốn có sự tính toán kỹ lưỡng để đưa ra kết luận phù hợp được. 
+
+--- Hướng phân tích: ---
+1. Không sử dụng ANOVA thông thường:
+    - Như ta thấy, histogram in ở trên cho thấy dữ liệu phân phối của đồng lương 
+    không chuẩn giữa các loại employment khác nhau.
+    - Boxplot cho thấy variance giữa các nhóm vi phạm assumption of homogeneity of variance (đồng chuẩn phương sai(variance)):  
+        Khi ta đánh giá boxplot, thứ nhất, ta nhìn vào chiều dài của hộp (box) theo tương đối của IQR.
+        Thứ 2 là nhìn vào 2 cái whiskers, upper fence và lower fence (mức độ phân tán ngoài IQR)
+        Thứ 3 là nhìn vào số lượng những cái fliers (outliers) cho thấy phân phối có đuôi dài và lệch nhiều.
+            ---> Từ đây, theo kinh nghiệm, khi nhìn vào những cái boxplot, nếu thấy whiskers dài ngắn khác nhau -> Điều này cho thấy các nhóm có mức độ phân 
+            tán khác nhau -> Variance không đều.
+            Thứ 2 là nếu các cái fliers rải rác không đồng đều so với nhau -> Tức là nhóm nào có nhiều outliers ở phía đuôi nhiều hơn thì thường có variance lớn hơn.
+            --> Kết luận trực quan:
+                Nếu whiskers và outliers khác nhau thì điều này chứng tỏ rằng variance giữa các nhóm khác nhau -> Và điều này chứng tỏ rằng homogeneity of variance bị
+                vi phạm. -> Không thể chạy ANOVA thông thường được vì sẽ bị sai số và kết luận không chính xác. 
+            --> Để kết luận chắc chắn, chạy <Levene's Test> hoặc <Barlett's Test> để đưa ra kết luận về variance giữa các nhóm khác nhau. 
+    
+    ---> Từ những kết luận trên, ta đưa ra quyết định 1 (Không sử dụng ANOVA thông thường)
+
+2. Dùng Kruskal-Wallis Test:
+    Đây là bản ANOVA phi tham số. Phi tham số tức là sao: 
+        1. Phi tham số nghĩa là:
+            - Không giả định rằng dữ liệu phải tuân theo một phân phối cụ thể (normal distribution e.g.).
+            - Không cần biết các THAM SỐ như mean, variance chính xác của các nhóm.
+        2. THAM SỐ trong các test bình thường là gì:
+            - Tham số ở đây là:
+                1. Mean (trung bình) ->  Sử dụng để so sánh giữa các nhóm khác nhau.
+                2. Variance (phương sai) -> giả định (assumption) là bằng nhau giữa các nhóm
+            - Tham số ANOVA sử dụng là gì:
+                1. Dữ liệu trong mỗi nhóm phải tuân theo phân phối chuẩn
+                2. Các nhóm có phương sai bằng nhau (homogeneity of variance)
+                3. Các quan sát là độc lập, tức là giá trị của một nhóm không có ảnh hưởng đến giá trị của nhóm khác. 
+                    Ví dụ: Bạn đo lương của 400 người: 100 người ft, 100 người pt, 100 người fl, 100 người ct, thì miễn là mỗi record là một cá nhân riêng biệt thì là ok.  
+                    Tức mỗi record cần phải là một record unique, không được có duplicate. 
+                    - Nếu tất cả những điều kiện trên thỏa mãn -> Ta chạy được ANOVA. 
+                    Ví dụ vi phạm tính độc lập: Record_A (id: 001, emp_type: ft, salary_usd: 100000); Record_B(id: 001, emp_type: ft, salary_usd: 40000) --> Cùng xuất hiện một người ở 2 dòng
+                    --> không độc lập. Nếu đã kiểm tra df.duplicated() hoặc employee_id rõ ràng thì hoàn toàn có thể yên tâm dùng ANOVA hoặc Kruskal. 
+
+    Cách sử dụng Kruskal-Wallis trong Python:
+    from scipy.stats import Kruskal
+    p = kruskal(nhóm 1, nhóm 2, nhóm 3, nhóm 4)
+    Nếu:
+        - p <= 0.05: có sự khác biệt về lương ít nhất gữa một nhóm employment.
+        - p > 0.05: không có sự khác biệt gì đáng kể. 
+
+Kết luận: 
+Trong trường hợp này, sử dụng Kruskal-Wallis là lựa chọn phù hợp để xác định xem employment type có ảnh hưởng đến mức lương hay không. 
+Nếu p-value ≤ 0.05, ta sẽ tiếp tục thực hiện post-hoc test (như Dunn’s test) để xác định nhóm nào khác biệt với nhóm nào.
+
+
+--- Câu hỏi ---
+Vậy nếu barlett, levene đều đánh giá variance giữa các nhóm với nhau, nó khác nhau gì so với thuật toán chính kruskal wallis.
+Tại sao 2 cái đầu lại được sử dụng để đánh giá tiền đề để sử dụng kruskal wallis, trong khi cả 3 cái này đều đánh giá một thứ như nhau?
+    - Trả lời ngắn gọn: 
+        - Levene và Barlett: Sử dụng để kiểm tra liệu: variance giữa các nhóm có như nhau không.
+        - Kruskal-Wallis: Sử dụng để kiểm tra liệu rằng có sự khác biệt về phân phối trung tâm (median) giữa các nhóm không.
+        Barlett/Levene chỉ dùng để kiểu tra cái assumption, rằng liệu cái phương sai giữa các nhóm có khác nhau không. 
+        Còn Kruskal-Wallis sử dụng để kiểm tra rằng có sự khác biết về median gữa các nhóm không, dùng để thay thế ANOVA khi dữ liệu phân phối không chuẩn.
+        
+        Note thêm: Kruskal-Wallis chỉ trả lời câu hỏi rằng có ít nhất một nhóm nào đó có median khác biệt đáng kể hay không. Nó không trả lời rằng nhóm nào khác với nhóm nào,
+        mức độ ảnh hưởng (effect-size: η² (ANOVA) hoặc ε² (Kruskal)) ra sao. 
+        
+        Vậy, khi p <= 0.05 (Kruskal) thì mình cần làm gì?
+            Sử dụng post-hoc test (so sánh từng cặp với nhau)
+            Để biết nhóm nào khác nhóm nào, và mức độ khác biệt ra sao: example: import scikit_posthocs as sp
+                                                                                 sp.posthoc_dunn([group1, group2, group3, group4], p_adjust='bonferroni')
+            Còn nếu muốn đo effect-size (mức độ khác biệt thực sự giữa các nhóm), ta có thể sử dụng:
+                1. Eta-squared(η²) <ANOVA>
+                2. Episolon-squared (ε²) <Kruskal>
+                3. Pair-wise
+            Mức độ ảnh hưởng (effect size) là thước đo "mức độ khác biệt thực sự" giữa các nhóm.
+            
