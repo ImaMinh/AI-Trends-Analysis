@@ -8,7 +8,7 @@ df = pd.read_csv('C:/Users/handu/Codes/Personal/Data Analysis Project/AI_Trend A
 
 df = df[['salary_usd','employment_type']]
 
-# print(df.shape, df.columns, df.head(), df.tail(), df.sample(10), df['employment_type'].unique())
+#print(df.shape, "\n", df.columns, "\n", df.head(), "\n", df.tail(), "\n", df.sample(10), "\n", df['employment_type'].unique())
 # print(df.isna().sum())
 
 # Renaming the Employment Types:
@@ -61,13 +61,15 @@ plt.xticks(list(np.arange(len(emp_stats['employment_type']))), labels=[f"{emp_ty
 # --- Running One Way ANOVA: ---
 
 # Checking Data Validity:
-# Decide on an order for the categories:
+# Decide on an order for the categories and Un-grouping:
 types = ['Full-Time','Freelance','Contract','Part-Time']
+data = [df.loc[df['employment_type']==t, 'salary_usd'].values for t in types]
 
 # --- 1) Grouped boxplot ---
+
+# Đọc kỹ lại đoạn này
 fig, ax = plt.subplots(figsize=(8, 6))
 # build one list of arrays, in order, for each employment type
-data = [df.loc[df['employment_type']==t, 'salary_usd'].values for t in types]
 print(data)
 
 bp = ax.boxplot(data, # type: ignore
@@ -94,4 +96,28 @@ for ax, t in zip(axes, types):
 
 plt.suptitle("Salary Distributions by Employment Type", weight="bold", y=1.02)
 plt.tight_layout()
-plt.show()  
+
+
+"""
+Đọc phân tích trong Notes <Phân tích Variance giữa các Employment Type> 
+"""
+
+# --- Sử dụng Kruskal-Wallis để phân tích độ lớn variance giữa các Nhóm emp_type và tính episilon bình phương:
+
+stat, p_value = stats.kruskal(*data) # <--- Group unpacking
+
+# calculate epsilon squared:
+H = stat
+k = len(data)
+n = sum(len(group) for group in data) # number of data points across all groups (total number of data points)
+
+epsilon_squared = (H - k + 1) / (n - k)
+
+print(
+    "stat: ", stat, "\n"
+    "p-value: ", p_value, "\n"
+    "epsilon-squared: ", epsilon_squared
+)
+
+# Show the plots:
+plt.show()
