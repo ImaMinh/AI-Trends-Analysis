@@ -65,6 +65,8 @@ plt.xticks(list(np.arange(len(emp_stats['employment_type']))), labels=[f"{emp_ty
 types = ['Full-Time','Freelance','Contract','Part-Time']
 data = [df.loc[df['employment_type']==t, 'salary_usd'].values for t in types]
 
+print(data)
+
 # --- 1) Grouped boxplot ---
 
 # Đọc kỹ lại đoạn này
