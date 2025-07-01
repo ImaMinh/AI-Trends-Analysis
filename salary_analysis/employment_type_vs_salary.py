@@ -114,10 +114,24 @@ n = sum(len(group) for group in data) # number of data points across all groups 
 epsilon_squared = (H - k + 1) / (n - k)
 
 print(
-    "stat: ", stat, "\n"
+    "H: ", stat, "\n"
     "p-value: ", p_value, "\n"
     "epsilon-squared: ", epsilon_squared
 )
+
+if(p_value > 0.05):
+    print('H0 can be true <-> No significant variance')
+else:
+    print('H0 might not be true <-> Might have significant variance')
+
+if(epsilon_squared < 0.06):
+    print("Effect size is small")
+elif(0.06 <= epsilon_squared <= 0.14):
+    print("Effect size is medium")
+elif(epsilon_squared > 0.14):
+    print("Effect size is large")
+    
+plt.figtext(0.5, -0.05, f"H = {H:.2f}, p = {p_value:.4f}, ε² = {epsilon_squared:.3f}", ha='center', fontsize=10)
 
 # Show the plots:
 plt.show()
