@@ -58,8 +58,6 @@ plt.bar(list(np.arange(len(emp_stats['employment_type']))), emp_stats['mean_sala
 plt.legend()
 plt.xticks(list(np.arange(len(emp_stats['employment_type']))), labels=[f"{emp_type}" for emp_type in emp_stats['employment_type']])
 
-# --- Running One Way ANOVA: ---
-
 # Checking Data Validity:
 # Decide on an order for the categories and Un-grouping:
 types = ['Full-Time','Freelance','Contract','Part-Time']
