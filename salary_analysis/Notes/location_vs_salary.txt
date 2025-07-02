@@ -3,7 +3,9 @@
 Thứ nhất, ta phải hiểu được 2 khái niệm: 
     * Sample Distribution: Thông số (thông thường là mean) của một tập hợp con trong một tập hợp gốc lớn. 
                             Sample Distribution là thông số của một tập hợp độc lập, chưa phải là sự kết hợp của nhiều sample khác nhau. 
-    * Sampling Distribution: Distribution của các thông số (các mean) tạo ra từ tất cả những thông số lấy từ sample distribution.
+                            
+    * Sampling Distribution: Distribution của các thông số (các mean) khi lặp vô số lần “rút mẫu size n → tính thống kê”. 
+    Theo CLT, sampling distribution của \(\bar x\) xấp xỉ chuẩn với mean = μ và SD = σ/√n.
 
     Khi ta lặp lại bước: lấy sample distribution, thêm vào sampling distribution, và lặp lại bước này hàng nghìn lần (khoảng 1000 -> 10000 lần), sampling
     distribution sẽ trở thành normal distribution (theo Central Limit Theorem)
@@ -27,3 +29,31 @@ CI = (mean sampling) +- z*(s/sqrt(n)),
     định từ đầu, ví dụ mình muốn xác định 95% của population nằm trong khoảng nào, thì z sẽ có giá trị riêng để tính ra được 95%. 
     --> Vậy, z*(s/sqrt(n)) là <margin of error>: độ rộng quanh mean của sampling mà ta tin A% (95% e.g.) của cái distribution đó là khoảng giá trị mà mean của
     tập hợp gốc (quần thể gốc), nằm trong đó. 
+Nói cách khác: 
+    1. Để ước lượng, hoặc xác định sampling distribution (thực qua bootstrap hoặc qua lý thuyết CLI)
+    2. Chọn một mức tin cậy 1 - α (ví dụ 95%)
+    3. Lấy 2 đầu là percentiles α/2 và 1 - α/2 của sampling distribution
+    4. Khoảng giữa 2 đầu đó chính là CI.
+
+
+Vậy, CI chính là khoảng giá trị nằm trong sampling disitrbution mà ta tin là mean/median của population gốc sẽ nằm trong đó. Với xác suất là 1 - α
+
+Vậy, làm thế nào để ta tìm ra được mean hay median của sampling distribution? 
+
+Sampling Distribution bản chất là phân phối của population gốc khi các mẫu sample nhỏ được rút ra và phân tích, tính mean, mode, median, hàng nghìn (B) lần
+Với B khoảng 1000 -> 10000 lần để có đủ độ mịn cho bootstrap hay các sample distribution nhỏ. 
+
+Sampling distribution có thể sử dụng hai cách để lấy ra được:
+* Về lý thuyết, ta có thể sử dụng (CLT), rút ra vô số mẫu size n từ quần thể -> Phân phối của thống kê sẽ xấp xỉ chuẩn (cho mean) hoặc phức tạp (cho median)
+* Về thực hành (bootstrap): Nếu ta chỉ có một mẫu gốc, ta có thể sử dụng Bootstrapping để tìm ra được T(mean, mode, median, SE, ...) cho sampling distribution
+của population gốc. 
+
+============ Bootstrap là gì? ============
+Trong thực tế, mình thường chỉ có một bộ dữ liệu quan sát được, ví dụ một nhóm mức lương thu thập được từ Thụy Sỹ, chẳng hạn.
+Mình muốn ước lượng sampling distribution của một thống kê như trên, mà không thể rút thêm sample mẫu từ population gốc, thì 
+ta có thể sử dụng Bootstrapping để thống kê ra thông tin chỉ từ một mẫu gốc đó mà thôi.
+
+Cách hoạt động của bootstrapping có thêm xem trên youtube: https://www.youtube.com/watch?v=Xz0x-8-cgaQ
+
+Sau khi sử dụng bootstrap xong, ta đã có thể ước lượng được mean/median cho sampling distribution của quần thể mẫu gốc (population). 
+Sau khi ước lượng được mean/median, ta có thể sử dụng CI để xác định được khoảng giá trị mà mean/median của population gốc rơi vào đâu. 
