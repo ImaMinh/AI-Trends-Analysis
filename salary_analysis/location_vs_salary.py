@@ -14,25 +14,26 @@ locations = data['company_location'].unique()
 
 print(data['company_location'].value_counts().__len__())
 
-fig, axes = plt.subplots(2, 10, sharex=True, sharey=True)
+fig, axes = plt.subplots(2, 10, sharex=True, sharey=True) # dùng một trục y chung cho tất cả các subplot
 axes = axes.flatten()
+
+plt.ylabel('Distribution')
 
 for ax, t in zip(axes, locations):
     vals = data.loc[data['company_location']==t, 'salary_usd']
-    ax.hist(vals, bins=5, edgecolor='black', alpha=0.7)
+    ax.hist(vals, bins=5, edgecolor='black', alpha=0.5)
     ax.set_title(t)
+    #ax.set_xticklabels(list(np.arange(90000, 300000, 3)),rotation = 45)
     ax.set_xlabel("Salary")
-    ax.set_ylabel("Distribution")
 
 plt.title("Salary Distributions by Countries", weight="bold", loc='center', y=2.3)
 plt.tight_layout()
 plt.show()
 
-# --- Statistical:
+# --- Statistical ---
 groups = [data.loc[data['company_location']==c,'salary_usd'].reset_index(drop=True) for c in locations] #type: ignore
 H, p = stats.kruskal(*groups)
 print(f"H={H}, p={p:.3e}")
-print("log10(p) =", np.log10(p))
 
 
 # 2. Compute median and bootstrap CI
@@ -56,6 +57,12 @@ cis = (
       .apply(lambda x: pd.Series(bootstrap_ci(x), index=['ci_low','ci_high']))
 )
 
-summary = summary.join(cis).sort_values('median', ascending=False)
+summary = summary.join(cis).sort_values('median', ascending=False).reset_index(drop=False)
 print(summary)
+
+
+plt.figure()
+plt.bar(summary['company_location'],summary['median'], color='purple', alpha=0.2, edgecolor='black')
+plt.xticks(rotation=45)
+plt.show()
 

@@ -1,0 +1,29 @@
+=== Bootstrapping, CLT, và CI ===
+
+Thứ nhất, ta phải hiểu được 2 khái niệm: 
+    * Sample Distribution: Thông số (thông thường là mean) của một tập hợp con trong một tập hợp gốc lớn. 
+                            Sample Distribution là thông số của một tập hợp độc lập, chưa phải là sự kết hợp của nhiều sample khác nhau. 
+    * Sampling Distribution: Distribution của các thông số (các mean) tạo ra từ tất cả những thông số lấy từ sample distribution.
+
+    Khi ta lặp lại bước: lấy sample distribution, thêm vào sampling distribution, và lặp lại bước này hàng nghìn lần (khoảng 1000 -> 10000 lần), sampling
+    distribution sẽ trở thành normal distribution (theo Central Limit Theorem)
+
+    Vậy từ đây, ta sẽ phân biết được ba loại distribution:
+        1. Population Distribution: Thông số và phân bố của tập hợp gốc (dân số gốc).
+        2. Sample Distribution: Thông số và phân bố cảu một tập hợp con được lấy ra từ tập hợp gốc. 
+        3. Sampling Distribution: Thông số và phân bố của hàng nghìn những thông số của Sample Distribution.
+
+        Để ý rằng, mỗi loại distribution sẽ có ký hiệu của mean riêng (miu cho Population, và miu_x^(-) cho Sampling). Đặc biệt là ngoài ra, ký hiệu và tên gọi
+        của stdev giữa population và sampling khác nhau. Stdev của Population là sigma (standard deviation), còn Sampling là sigma_(x) và = sigma / sqrt(n) 
+        với n là số lượng phần tử của sampling. Ngoài ra, tên gọi stdev của sampling là Standard Error. 
+
+Bây giờ, ta đã có thể hiểu được khái niệm về CI. 
+CI chính là khoảng giá trị trong sampling distribution mà mình tin rằng cái giá trị mean/median của population nó nằm trong đó. 
+CI = (mean sampling) +- z*(s/sqrt(n)),
+Ở đây:
+    * s là standard error của sampling
+    * n là số phần tử của TẬP HỢP GỐC.
+    * z là một tham số để mình tính được cái upper limit và lower limit của CI sao cho <số %> của cái diện tích của distribution là cái lượng phần trăm mình xác
+    định từ đầu, ví dụ mình muốn xác định 95% của population nằm trong khoảng nào, thì z sẽ có giá trị riêng để tính ra được 95%. 
+    --> Vậy, z*(s/sqrt(n)) là <margin of error>: độ rộng quanh mean của sampling mà ta tin A% (95% e.g.) của cái distribution đó là khoảng giá trị mà mean của
+    tập hợp gốc (quần thể gốc), nằm trong đó. 
