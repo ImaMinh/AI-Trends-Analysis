@@ -41,7 +41,7 @@ Tuy nhiên, tôi muốn có sự tính toán kỹ lưỡng để đưa ra kết 
 
     Cách sử dụng Kruskal-Wallis trong Python:
     from scipy.stats import Kruskal
-    p = kruskal(nhóm 1, nhóm 2, nhóm 3, nhóm 4)
+    p = kruskal(nhóm 1, nhóm 2, nhóm 3, nhóm 4, ...)
     Nếu:
         - p <= 0.05: có sự khác biệt về lương ít nhất gữa một nhóm employment.
         - p > 0.05: không có sự khác biệt gì đáng kể. 
@@ -72,4 +72,32 @@ Tại sao 2 cái đầu lại được sử dụng để đánh giá tiền đ�
                 2. Episolon-squared (ε²) <Kruskal>
                 3. Pair-wise
             Mức độ ảnh hưởng (effect size) là thước đo "mức độ khác biệt thực sự" giữa các nhóm.
+
+Về thông thường, nếu như các nhóm lương của chúng ta phân bố khá đồng đều (normal) thì ta có thể kiểm tra sự khác nhau, sắp xếp độ lớn bằng cách so sánh giá
+trị trung bình với các test có tham số (ANOVA hay là t-test). Tuy nhiên, khi các tham số đó bị skewed, thì các cái mean đó sẽ bị sắp lệch đi, và khi đó ta phải
+sử dụng các test khác để so sánh các nhóm với nhau.
+
+Thứ nhất, để đánh giá được độ khác nhau giữa các nhóm, ta kiểm tra theo từng bước như sau:
+    - Thứ nhất là kiểm tra phương sai và sự phân bố:
+        1. Kiếm tra bằng mắt, cái này có thể kiểm tra bằng plotting histogram hoặc biểu đồ QQ. Boxplot để xem phân bố và skewness. 
+        2. Kiểm tra bằng thống kê. Có 2 phương pháp kiểm tra chính:
+            a. kiểm tra sự phân bố: Shapiro-Wilk (nếu nhìn bằng mắt mà thấy skew rồi thì không cần)
+            b. kiểm tra phương sai: dùng Levene's hoặc Barlett's để kiểm tra.
+            Nếu phần lớn các nhóm nhìn 'Bình Thường', Shapiro Wilk ra p > 0.05 cho đến 80% số nhóm, và phương sai ok (đọc thêm đoạn này), nghĩa là giá trị
+            bình của các nhóm (mean) khá là trung bình.
+        3. Nếu thấy các nhóm BÌNH THƯỜNG, thì:
+            1: nếu so sánh giữa 2 nhóm -> Dùng independent t-test.
+            2: nếu so sánh giữa 3 nhóm trở lên -> dùng ANOVA một chiều, sau đó, mình có thể dùng post-hoc test để so sánh 2 nhóm độc lập với nhau. 
+        
+Tuy nhiên, nếu như các nhóm phân bố không bình thường: 
+    + skew trái, skew phải, phương sai không đồng đều, sample size nhỏ
+    Thì trong những trường hợp đó, mình phải sử dụng các test PHI THAM SỐ, tức là so sánh dựa trên rank của các phần tử, như là:
+    1. Mann-Whitney U (Wilcoxon rank-sum) (So sánh median/rank giữa 2 nhóm không phân bố chuẩn)
+    2. Kruskal–Wallis (So sánh median/rank giữa 3 hoặc nhiều hơn các nhóm phân bố không chuẩn)
+
+Nếu các nhóm phân bố khá bình thường (nhìn na ná bình thường, những lượng skew vẫn lớn):
+    - Sử dụng:
+    1. Trimmed means: ta có thể lấy Interval of Confidence (bỏ 10% lượng dữ liệu 2 đầu dữ liệu 10% top and 10% bottom)
+    2. Sử dụng bootstrap, testing the mean difference. (Sắp xếp lại các nhóm và tính CI quanh cái median của các nhóm đó) (ĐỌC THÊM)
+    3. Hoán vị (Chưa đọc)
             
