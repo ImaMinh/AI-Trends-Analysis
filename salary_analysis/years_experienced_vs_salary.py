@@ -23,10 +23,6 @@ plt.xlabel('Years of Experience')
 plt.ylabel('Salary (USD)')
 plt.title('Salary vs. Years of Experience')
 
-
-# # Plot heatmap
-# ——— 1) Load & clean ———
-
 # ——— 2) Compute “nice” bin edges ———
 exp_step = 4
 sal_step = 10000
@@ -67,7 +63,6 @@ plt.ylabel("Salary (bins of $10 000)")
 plt.xticks(rotation=0)
 plt.yticks(rotation=0)
 plt.tight_layout()
-plt.show()
 
 # --- Compute Numerical Correlation Coeffiecient: ---
 
@@ -90,3 +85,5 @@ elif (rho > -0.7):
     print("Moderate negative correlation (clear inverse trend, but not perfect)")
 else:
     print("Strong negative correlation")
+
+plt.show()
