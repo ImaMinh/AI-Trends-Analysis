@@ -8,8 +8,8 @@ df = pd.read_csv('C:/Users/handu/Codes/Personal/Data Analysis Project/AI_Trend A
 
 df = df[['salary_usd','employment_type']]
 
-#print(df.shape, "\n", df.columns, "\n", df.head(), "\n", df.tail(), "\n", df.sample(10), "\n", df['employment_type'].unique())
-# print(df.isna().sum())
+print(df.shape, "\n", df.columns, "\n", df.head(), "\n", df.tail(), "\n", df.sample(10), "\n", df['employment_type'].unique())
+print(df.isna().sum())
 
 # Renaming the Employment Types:
 df['employment_type'] = df['employment_type'].replace({'CT': 'Contract', 'FL': 'Freelance', 'PT': 'Part-Time', 'FT': 'Full-Time'})

@@ -1,6 +1,7 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
+from matplotlib.cm import get_cmap
 
 df = pd.read_csv('C:/Users/handu/Codes/Personal/Data Analysis Project/AI_Trend Analysis/ai_job_dataset_cleaned.csv')
 
@@ -18,6 +19,8 @@ for row in skill_set.iloc:
 print(len(temp))
 
 df_skill = pd.DataFrame(temp)
+
+print(df_skill)
 
 print(
     "Shape: ", df_skill.shape,
@@ -37,7 +40,7 @@ for col in df_skill.columns:
     print(df_skill[col].unique(), "\n")
     temp = pd.concat([temp, pd.Series(df_skill[col].unique())])
     
-print(temp.unique())
+print(temp)
 
 temp = temp.str.strip()
 
