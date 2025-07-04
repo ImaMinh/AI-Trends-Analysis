@@ -3,12 +3,18 @@ import numpy as np
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+# ------ Load Data -------
+
 df = pd.read_csv("./ai_job_dataset.csv")
 
-# 1 --- Initial Schema and Sanity Checks ---: 
-# * Quick structural checks:
-#      - Look at: df.shape, df.columns, df.dtypes
-#      - Peek at df.head(), df.tail() to validate that the content looks sane (no shifted rows, garbage characters, etc.)
+# =============================================
+# ===== Initial Schema and Sanity Checks ======
+# ============================================= 
+
+# Quick structural checks:
+# - Look at: df.shape, df.columns, df.dtypes
+#  - Peek at df.head(), df.tail() to validate that the content looks sane (no shifted rows, garbage characters, etc.)
+
 shape = df.shape
 columns = df.columns
 dtypes = df.dtypes
@@ -34,24 +40,16 @@ print(
 # 2 --- Check for Missing Values ---:
 def check_for_missing_values(df: pd.DataFrame)->None:
     missing_counts = [(df[col].isna()).sum() for col in df]
-    missing_counts = pd.DataFrame([missing_counts], columns = df.columns, index=(['duplicates'])) # additional index column, add list braces to be syntax-correct
+    missing_counts = pd.DataFrame([missing_counts], columns = df.columns, index=(['Missing Values'])) # additional index column, add list braces to be syntax-correct
     print(missing_counts.T, "\n\n")
 
 check_for_missing_values(df)
 
-# Tasks for tommorow: 
-# 1. Show percentages
-# 3. Combine counts and percents
-# 4. Handle large schema gracefully
 
-# --- Data Type and Schema Enforcement:
-# * Cast each column to its intended type: int, float, category, datetime
-# * Fail fast (raise an error), if a value cannot be coerced
-
-#3. --- Check for Duplicates ---
+# 3. --- Check for Duplicates ---
 
 # check for general duplicated rows:
-def check_general_duplicates(df: pd.DataFrame)->None:
+def check_general_duplicates(df: pd.DataFrame) -> None:
     duplicates = df[df.duplicated(keep=False)]
     if duplicates.empty:
         print(">>> No duplicated rows\n\n")
@@ -76,16 +74,18 @@ def checking_for_unique_job_titles(df: pd.DataFrame) -> None:
 
 def checking_for_duplicates_job_ids(df: pd.DataFrame) -> None:
     duplicated_ids = df[df.duplicated(['job_id'])]
-    if duplicated_ids.empty:
+    if duplicated_ids.empty: 
         print(">>> No duplicated job IDs\n\n")
-    else:
+    else:   
         print(">>> Duplicated IDs: \n", duplicated_ids)
 
 check_general_duplicates(df)
 checking_for_unique_job_titles(df)
 checking_for_duplicates_job_ids(df)
 
-# --- Checking for Outliers ---
+# ================================
+# ==== Checking for Outliers =====
+# ================================
 
 print(">>> General Numeric Stats: \n", df.describe(), "\n")
 
@@ -155,7 +155,31 @@ def plot_box(salary: pd.Series)->None:
     # Boxplot
     fig, ax = plt.subplots()
     fig.set_figheight(5)
-    ax.boxplot(salary, vert=False)
+    bplot = ax.boxplot(
+        salary, 
+        vert=False, 
+        patch_artist=True,
+        boxprops=dict(linewidth=2.5, color='#555555'),
+        whiskerprops=dict(color='#555555', linewidth=1.5),
+        capprops=dict(color='#555555', linewidth=1.5)
+    ) 
+    
+    for patch in (bplot['boxes']):
+        patch.set_facecolor('#4C72B0')
+    
+    for median in bplot['medians']:
+        median.set(color ='#DD8452',
+                linewidth = 3)
+    
+    # changing style of fliers
+    for flier in bplot['fliers']:
+        flier.set(marker ='D',
+                markerfacecolor ="#55A868",
+                markeredgecolor = '#2E7D32',
+                alpha = 0.5)
+    
+    ax.grid(True)
+    
     ax.set_xlabel("Salary Distribution (USD)", weight="bold")
     ax.set_xticks([Q1, Q2, Q3])
     ax.set_xticklabels([f'Q{index + 1}: {m} USD' for index, m in enumerate([Q1, Q2, Q3])], rotation=45, ha='right', weight='bold')
@@ -170,10 +194,10 @@ def plot_box(salary: pd.Series)->None:
     lower_fence = Q1 - 1.5*IQR
     upper_fence = Q3 + 1.5*IQR
     
-    ax.plot(lower_fence, 1, marker = 'x', mfc = 'red', ms = 10, mew=4, mec='red')
+    ax.plot(lower_fence, 1, marker = 'x', mfc = "#C44E52", ms = 10, mew=4, mec="#C44E52")
     ax.text(float(lower_fence), 1.03, 'lower tukey fence', weight='bold')
-    ax.plot(upper_fence, 1, marker = 'x', mfc = 'blue', ms = 10, mew=4, mec='blue')
-    ax.text(float(upper_fence), 1.03, 'upper tukey fence', weight='bold')
+    ax.plot(upper_fence, 1, marker = 'x', mfc = 'purple', ms = 10, mew=4, mec='purple   ')
+    ax.text(float(upper_fence) + 5000, 1.03, 'upper tukey fence', weight='bold')
     
     plt.title('Box Plot of Salary Distribution', weight='bold')
 
@@ -200,7 +224,7 @@ IQR = Q3 - Q1
 lower_fence = Q1 - 1.5*IQR
 upper_fence = Q3 + 1.5*IQR
     
-plot_hist(salary)
+plot_hist(salary)       
 plot_box(salary)
 flag_zScore_outliers(salary, upper_fence)
 
