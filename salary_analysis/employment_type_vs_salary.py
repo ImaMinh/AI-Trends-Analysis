@@ -19,7 +19,6 @@ df['employment_type'] = df['employment_type'].replace({'CT': 'Contract', 'FL': '
 df_groups = df.groupby(['employment_type'])
 
 # Counting the Percentages of each Employment Type:
-
 counts = df['employment_type'].value_counts()
 total = df['employment_type'].count()
 
@@ -31,20 +30,30 @@ print(series_counts_values)
 percentages = [(count/total)*100 for count in counts]
 print(percentages)
 
+# ==================
+# ==== Plotting ====
+# ==================
+
+
+# ----- Pie Chart ------
+
 plt.figure()
 
-colors = ("lightcoral","grey","indianred", "beige")
-
+colors = ['#8dd3c7', '#ffffb3', '#bebada', '#fb8072', '#80b1d3']
 
 plt.pie(
     list(series_counts_values), 
     labels = list(series_employment_labels), 
     autopct='%.2f%%', startangle=90, 
-    wedgeprops={'edgecolor':'black'}, textprops={'weight': 'bold'}, colors=colors)
-plt.title('Data Set Employment Type Percentages', weight='bold')
+    wedgeprops={'edgecolor':'none'}, textprops={'weight': 'bold'}, colors=colors)
+plt.title('Data Set Employment Type Percentages', weight='bold')    
 
 
-# Calculating Salary Stats for each Employment Type:
+# ================================================================
+# ====== Calculating Salary Stats for each Employment Type =======
+# ================================================================
+
+# ---- calculating stats ----
 emp_stats = df.groupby('employment_type')['salary_usd'] \
             .agg(['count','median','mean', lambda x: x.quantile(.75)-x.quantile(.25)]) \
             .reset_index(drop=False) \
@@ -53,10 +62,32 @@ emp_stats = df.groupby('employment_type')['salary_usd'] \
               
 print(emp_stats)
 
-plt.figure()
-plt.bar(list(np.arange(len(emp_stats['employment_type']))), emp_stats['mean_salary'], label='mean salary', ec='black', width=0.32)
-plt.legend()
-plt.xticks(list(np.arange(len(emp_stats['employment_type']))), labels=[f"{emp_type}" for emp_type in emp_stats['employment_type']])
+x = np.arange(len(emp_stats['employment_type']))
+width = 0.2  # width of the bars
+
+# ---- Create the bar chart ----
+fig, ax = plt.subplots()  # if no parameter -> subplot return axes of (1, 1) meaning 1 row and 1 column 
+ax.bar(x - width/2, emp_stats['mean_salary'], width, label='Mean', edgecolor = 'maroon', color='brown')
+ax.bar(x + width/2, emp_stats['median_salary'], width, label='Median', edgecolor = 'darkolivegreen', color='olivedrab')
+
+# Labeling
+labels = [
+    f"{et}\nMean={mean:.0f}\nMedian={med:.0f}"
+    for et, mean, med in zip(
+        emp_stats['employment_type'],
+        emp_stats['mean_salary'],
+        emp_stats['median_salary'],
+    )
+]
+
+ax.set_xticks(x)
+ax.set_xticklabels(labels, rotation=0, ha='center', fontsize=9)
+ax.set_xlabel('Employment Type')
+ax.set_ylabel('Salary (USD)')
+ax.set_title('Mean vs Median Salary by Employment Type', weight='bold')
+ax.legend()
+
+plt.tight_layout()
 
 # Checking Data Validity:
 # Decide on an order for the categories and Un-grouping:
@@ -65,42 +96,67 @@ data = [df.loc[df['employment_type']==t, 'salary_usd'].values for t in types]
 
 print(data)
 
-# --- 1) Grouped boxplot ---
-
+# -------------------------
+# ---- Grouped boxplot ----
+# -------------------------
 # Đọc kỹ lại đoạn này
-fig, ax = plt.subplots(figsize=(8, 6))
-# build one list of arrays, in order, for each employment type
-print(data)
+# fig, ax = plt.subplots(figsize=(8, 6))
+# # build one list of arrays, in order, for each employment type
+# print(data)
 
-bp = ax.boxplot(data, # type: ignore
-                label=types,
-                vert=False,      # horizontal boxes
-                patch_artist=True,
-                boxprops=dict(facecolor='lightblue', edgecolor='black'),
-                medianprops=dict(color='red', linewidth=2))
+# bplots = ax.boxplot(data, # type: ignore
+#                 label=types,
+#                 vert=False,      # horizontal boxes
+#                 patch_artist=True,
+#                 boxprops=dict(facecolor='lightblue', edgecolor='black'),
+#                 medianprops=dict(color='red', linewidth=3),
+#                 flierprops=dict(markerfacecolor='gray', alpha=0.5))
 
-ax.set_xlabel("Salary (USD)", weight="bold")
-ax.set_title("Salary by Employment Type (Boxplot)", weight="bold")
-plt.tight_layout()
+# for patch, color in zip(bplots['boxes'], colors):
+#     patch.set_facecolor(color)
 
-# --- 2) Histograms per type ---
+# ax.set_xlabel("Salary (USD)", weight="bold")
+# ax.set_yticklabels(types)
+# ax.set_title("Salary by Employment Type (Boxplot)", weight="bold")
+# plt.tight_layout()
+
+
+plt.figure(figsize=(8,4))
+sns.boxplot(
+    y='employment_type',
+    x='salary_usd',
+    data=df,
+    order=types,            # enforces your exact order
+    palette='Set2',
+    flierprops={'markerfacecolor':'gray', 'alpha':0.5},
+    medianprops={'color':'red'}
+)
+plt.xlabel('Salary (USD)')
+plt.ylabel('Employment Type')
+plt.title('Salary by Employment Type', weight='bold')
+plt.show()
+
+# --- Histograms per type ---
 fig, axes = plt.subplots(2, 2, figsize=(12, 8), sharex=True, sharey=True)
 axes = axes.flatten()
 
 for ax, t in zip(axes, types):
     vals = df.loc[df['employment_type']==t, 'salary_usd']
     ax.hist(vals, bins=30, edgecolor='black', alpha=0.7)
-    ax.set_title(t)
+    ax.set_title(t, weight='bold')
     ax.set_xlabel("Salary")
-    ax.set_ylabel("Frequency")
+    ax.set_ylabel("Distribution")
 
-plt.suptitle("Salary Distributions by Employment Type", weight="bold", y=1.02)
+plt.suptitle("Salary Distributions by Employment Type", weight="bold")
 plt.tight_layout()
 
 
 """
 Đọc phân tích trong Notes <Phân tích Variance giữa các Employment Type> 
 """
+# ==============================
+# ==== Statistical Analysis ====
+# ==============================
 
 # --- Sử dụng Kruskal-Wallis để phân tích độ lớn variance giữa các Nhóm emp_type và tính episilon bình phương:
 
@@ -123,7 +179,6 @@ if(p_value > 0.05):
     print('H0 can be true <-> No significant variance')
 else:
     print('H0 might not be true <-> Might have significant variance')
-
 if(epsilon_squared < 0.06):
     print("Effect size is small")
 elif(0.06 <= epsilon_squared <= 0.14):
