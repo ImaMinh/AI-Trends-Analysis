@@ -123,16 +123,17 @@ print(data)
 
 plt.figure(figsize=(8,4))
 sns.boxplot(
-    y='employment_type',
-    x='salary_usd',
+    x='employment_type',
+    y='salary_usd',
     data=df,
     order=types,            # enforces your exact order
     palette='Set2',
     flierprops={'markerfacecolor':'gray', 'alpha':0.5},
-    medianprops={'color':'red'}
+    medianprops={'color':'red'},
+    vert=True
 )
-plt.xlabel('Salary (USD)')
-plt.ylabel('Employment Type')
+plt.ylabel('Salary (USD)')
+plt.xlabel('Employment Type')
 plt.title('Salary by Employment Type', weight='bold')
 plt.show()
 
@@ -142,7 +143,7 @@ axes = axes.flatten()
 
 for ax, t in zip(axes, types):
     vals = df.loc[df['employment_type']==t, 'salary_usd']
-    ax.hist(vals, bins=30, edgecolor='black', alpha=0.7)
+    ax.hist(vals, bins=100, edgecolor='black', alpha=0.7)
     ax.set_title(t, weight='bold')
     ax.set_xlabel("Salary")
     ax.set_ylabel("Distribution")
