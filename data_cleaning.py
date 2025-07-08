@@ -11,9 +11,9 @@ df = pd.read_csv("./ai_job_dataset.csv")
 # ===== Initial Schema and Sanity Checks ======
 # ============================================= 
 
-# Quick structural checks:
-# - Look at: df.shape, df.columns, df.dtypes
-#  - Peek at df.head(), df.tail() to validate that the content looks sane (no shifted rows, garbage characters, etc.)
+# 1 --- Quick structural checks ---
+# + Look at: df.shape, df.columns, df.dtypes
+# + Peek at df.head(), df.tail() to validate that the content looks normal (no shifted rows, garbage characters, etc.)
 
 shape = df.shape
 columns = df.columns
@@ -95,7 +95,6 @@ salary = df['salary_usd']
 print(">>> Standard salary deviation: ", salary.std())
 
 def plot_hist(salary: pd.Series) -> None:
-    #plot.figure()  --> bỏ đi tại vì nó tạo thêm một plot mới. Một cái này và cái figure khác khi mình gọi plt.subplots bên dưới -> 2 figures
     fig, axes = plt.subplots(figsize=(12,8))
 
     # Histogram on the first subplot
@@ -174,8 +173,8 @@ def plot_box(salary: pd.Series)->None:
     # changing style of fliers
     for flier in bplot['fliers']:
         flier.set(marker ='D',
-                markerfacecolor ="#55A868",
-                markeredgecolor = '#2E7D32',
+                markerfacecolor ="#4C72B0",
+                markeredgecolor = "#2F4569",
                 alpha = 0.5)
     
     ax.grid(True)
@@ -196,7 +195,7 @@ def plot_box(salary: pd.Series)->None:
     
     ax.plot(lower_fence, 1, marker = 'x', mfc = "#C44E52", ms = 10, mew=4, mec="#C44E52")
     ax.text(float(lower_fence), 1.03, 'lower tukey fence', weight='bold')
-    ax.plot(upper_fence, 1, marker = 'x', mfc = 'purple', ms = 10, mew=4, mec='purple   ')
+    ax.plot(upper_fence, 1, marker = 'x', mfc = 'purple', ms = 10, mew=4, mec='purple')
     ax.text(float(upper_fence) + 5000, 1.03, 'upper tukey fence', weight='bold')
     
     plt.title('Box Plot of Salary Distribution', weight='bold')
@@ -211,7 +210,7 @@ def flag_zScore_outliers(salary: pd.Series, upper_fence) -> None:
     
     plt.figure()
     plt.title("Potential Outlying Salary Distribution", weight='bold')
-    plt.hist(potential_outlying_salary['salary_usd'], ec='black', bins=10, label='outlying salary distribution')
+    plt.hist(potential_outlying_salary['salary_usd'], ec='black', bins=100, color='#4C72B0', alpha = 0.5, label='outlying salary distribution')
     
     print(">>> Examine Experience Level: ",potential_outlying_salary['experience_level'].unique(), "\n\n",
           ">>> Examine Job Roles: \n", potential_outlying_salary['job_title'].unique())

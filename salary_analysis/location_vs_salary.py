@@ -14,7 +14,7 @@ print(">>> Null Values: \n", data.isnull().sum())
 print(">>> Sample: \n",data.sample(10))
 
 df_stats = data.groupby(['company_location'])['salary_usd'].agg(['mean', 'median', max])
-print(">>> Initial Statistics: \n", df_stats)
+print(">>> Initial Statistics: \n", df_stats.sort_values(by='median', ascending=False))
 
 locations = data['company_location'].unique()
 print(">>> Unique Locations: \n", locations) 
@@ -103,13 +103,10 @@ print(f"================\n>>>> H Statistics ={H} \n>>>> p-value = {p:.3e}\n=====
 # ==============================================================================================
 
 def bootstrap_ci(x, stat=np.median, number_of_repeats=2000, alpha=0.05):
-    
     boot_stats = np.array([
-        stat(np.random.choice(x, size=len(x), replace=True)) for _ in range(number_of_repeats) # lặp lại quy trình B lần 
+        stat(np.random.choice(x, size=len(x), replace=True)) for _ in range(number_of_repeats) #bootstrap sampling B number of times.
     ])
-    
-    lower, upper = np.percentile(boot_stats, [100*alpha/2, 100*(1-alpha/2)])
-    
+    lower, upper = np.percentile(boot_stats, [100*alpha/2, 100*(1-alpha/2)]) # calculate the lower/upper CI intervals.
     return lower, upper
 
 summary = (
